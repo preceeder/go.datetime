@@ -64,6 +64,53 @@ func (t *DateTime) UnixNano() int64 {
 	return t.time.UnixNano()
 }
 
+func (t *DateTime) AddYears(d int) *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(d, 0, 0),
+	}
+}
+
+func (t *DateTime) SubYears(d int) *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(-d, 0, 0),
+	}
+}
+
+func (t *DateTime) AddMouths(d int) *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(0, d, 0),
+	}
+}
+func (t *DateTime) SubMouths(d int) *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(0, -d, 0),
+	}
+}
+
+func (t *DateTime) AddWeeks(d int) *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(0, 0, d*7),
+	}
+}
+
+func (t *DateTime) SubWeeks(d int) *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(0, 0, -d*7),
+	}
+}
+
 func (t *DateTime) AddDays(d int) *DateTime {
 	return &DateTime{
 		weekStartsAt: t.weekStartsAt,

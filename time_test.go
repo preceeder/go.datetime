@@ -36,4 +36,20 @@ func TestDateTime_AddHours(t1 *testing.T) {
 	fmt.Println(d.DayOfMouth())
 	fmt.Println(d.DayOfYear())
 
+	fmt.Println(d.SubYears(1))
+	fmt.Println(d.SubMouths(1))
+	fmt.Println(d.SubWeeks(1))
+	fmt.Println(d.SubDays(1))
+	fmt.Println(d.SubHours(1))
+	fmt.Println(d.SubMinutes(10))
+	fmt.Println(d.SubSeconds(160))
+
+	fmt.Println(d.AddYears(10))
+	fmt.Println(d.AddMouths(1))
+	fmt.Println(d.AddWeeks(11))
+	fmt.Println(d.AddDays(10))
+	fmt.Println(d.AddHours(10))
+	fmt.Println(d.AddMinutes(10))
+	fmt.Println(d.AddSeconds(160))
+
 }
