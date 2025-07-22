@@ -240,7 +240,7 @@ func TimestampToDateTime(timestamp int64, zone ...string) *DateTime {
 }
 
 // 时间string化为时间类型
-func StrToDateTime(datetime string, format string, zone ...string) (*DateTime, error) {
+func Parse(datetime string, format string, zone ...string) (*DateTime, error) {
 	loc := timeZoneHandler(zone...)
 	t, err := time.ParseInLocation(format, datetime, loc)
 	return &DateTime{

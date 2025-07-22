@@ -7,7 +7,7 @@ import (
 )
 
 func TestDateTime_DiffYears(t1 *testing.T) {
-	birthday, _ := StrToDateTime("1996-02-09", time.DateOnly)
+	birthday, _ := Parse("1996-02-09", time.DateOnly)
 	now := Now()
 	fmt.Println(birthday)
 	fmt.Println(birthday.Age())
