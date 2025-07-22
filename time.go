@@ -225,10 +225,16 @@ func (t *DateTime) YearNextSecond() int64 {
 	return last
 }
 
+func (t *DateTime) Age() int64 {
+	return t.DiffYears(t.Now())
+}
+
 // 时间戳转化为时间类型
 func TimestampToDateTime(timestamp int64, zone ...string) *DateTime {
+	lc := timeZoneHandler(zone...)
 	return &DateTime{
-		time:         time.Unix(timestamp, MinNanosecond).In(timeZoneHandler(zone...)),
+		location:     lc,
+		time:         time.Unix(timestamp, MinNanosecond).In(lc),
 		weekStartsAt: time.Monday,
 	}
 }
@@ -238,6 +244,7 @@ func StrToDateTime(datetime string, format string, zone ...string) (*DateTime, e
 	loc := timeZoneHandler(zone...)
 	t, err := time.ParseInLocation(format, datetime, loc)
 	return &DateTime{
+		location:     loc,
 		time:         t,
 		weekStartsAt: time.Monday,
 	}, err

@@ -25,7 +25,8 @@ const (
 )
 
 const (
-	DaysPerWeek = 7
+	DaysPerWeek   = 7  // 每周7天
+	MonthsPerYear = 12 // 每年12月
 )
 
 var (
