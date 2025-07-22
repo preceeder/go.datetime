@@ -7,14 +7,20 @@ import (
 type DateTime struct {
 	time         time.Time
 	weekStartsAt time.Weekday
+	location     *time.Location
 }
 
 func Now(zone ...string) *DateTime {
-	return &DateTime{time: time.Now().In(timeZoneHandler(zone...)), weekStartsAt: time.Monday}
+	loc := timeZoneHandler(zone...)
+	return &DateTime{time: time.Now().In(loc), weekStartsAt: time.Monday, location: loc}
 }
 
 func (t *DateTime) Now(zone ...string) *DateTime {
-	return &DateTime{time: time.Now().In(timeZoneHandler(zone...))}
+	loc := t.location
+	if len(zone) > 0 {
+		loc = timeZoneHandler(zone...)
+	}
+	return &DateTime{time: time.Now().In(loc), weekStartsAt: t.weekStartsAt, location: loc}
 }
 
 func (t *DateTime) SetWeekStartsAt(weekday time.Weekday) *DateTime {
@@ -23,7 +29,11 @@ func (t *DateTime) SetWeekStartsAt(weekday time.Weekday) *DateTime {
 }
 
 func (t *DateTime) Copy() *DateTime {
-	return &DateTime{time: t.time, weekStartsAt: t.weekStartsAt}
+	return &DateTime{time: t.time, weekStartsAt: t.weekStartsAt, location: t.location}
+}
+
+func (t *DateTime) Time() time.Time {
+	return t.time
 }
 
 // 输出 2006-01-02 15:04:05
@@ -55,42 +65,67 @@ func (t *DateTime) UnixNano() int64 {
 }
 
 func (t *DateTime) AddDays(d int) *DateTime {
-	t.time = t.time.AddDate(0, 0, d)
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(0, 0, d),
+	}
 }
 
 func (t *DateTime) SubDays(d int) *DateTime {
-	t.time = t.time.AddDate(0, 0, -d)
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.AddDate(0, 0, -d),
+	}
 }
 
 func (t *DateTime) AddSeconds(seconds int) *DateTime {
-	t.time = t.time.Add(time.Second * time.Duration(seconds))
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.Add(time.Second * time.Duration(seconds)),
+	}
 }
 
 func (t *DateTime) SubSeconds(seconds int) *DateTime {
-	t.time = t.time.Add(-time.Second * time.Duration(seconds))
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.Add(-time.Second * time.Duration(seconds)),
+	}
 }
 
 func (t *DateTime) AddMinutes(minutes int) *DateTime {
-	t.time = t.time.Add(time.Minute * time.Duration(minutes))
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.Add(time.Minute * time.Duration(minutes)),
+	}
 }
 
 func (t *DateTime) SubMinutes(minutes int) *DateTime {
-	t.time = t.time.Add(-time.Minute * time.Duration(minutes))
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.Add(-time.Minute * time.Duration(minutes)),
+	}
 }
 
 func (t *DateTime) AddHours(hours int) *DateTime {
-	t.time = t.time.Add(time.Hour * time.Duration(hours))
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.Add(time.Hour * time.Duration(hours)),
+	}
 }
+
 func (t *DateTime) SubHours(hours int) *DateTime {
-	t.time = t.time.Add(-time.Hour * time.Duration(hours))
-	return t
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         t.time.Add(-time.Hour * time.Duration(hours)),
+	}
 }
 
 func (t *DateTime) WeekEndsAt() time.Weekday {
@@ -99,6 +134,14 @@ func (t *DateTime) WeekEndsAt() time.Weekday {
 
 func (t *DateTime) WeekStartsAt() time.Weekday {
 	return t.weekStartsAt
+}
+
+func (t *DateTime) Sub(date *DateTime) time.Duration {
+	return t.time.Sub(date.time)
+}
+
+func (t *DateTime) Location() *time.Location {
+	return t.time.Location()
 }
 
 // 本周的第几天
@@ -111,7 +154,7 @@ func (t *DateTime) DayOfMouth() int {
 	return t.time.Day()
 }
 
-func (t *DateTime) DayOfYesterday() int {
+func (t *DateTime) DayOfYear() int {
 	return t.time.YearDay()
 }
 
@@ -123,32 +166,9 @@ func (t *DateTime) IsLeapYear() bool {
 	return false
 }
 
-// 今天剩余的时间 秒
-func (t *DateTime) DayNextSecond() int64 {
-	last := int64(t.EndOfDay().Sub(t.time) / time.Second)
-	if last < 1 {
-		last = 1
-	}
-	return last
-}
-
-// 今天开始后的时间 秒
-func (t *DateTime) DayLastSecond() int64 {
-	return int64(t.time.Sub(t.StartOfDay()) / time.Second)
-}
-
-// 本周剩余的时间   周一为开始时间， 周末为结束时间
-func (t *DateTime) WeekNextSecond() int64 {
-	last := int64(t.EndOfWeek().Sub(t.time) / time.Second)
-	if last <= 1 {
-		return 1
-	}
-	return last
-}
-
-// 获取本月的剩余时间
-func (t *DateTime) MouthNextSecond() int64 {
-	last := int64(t.EndOfMonth().Sub(t.time) / time.Second)
+// 获取当前分钟的剩余时间
+func (t *DateTime) MinuteNextSecond() int64 {
+	last := int64(t.EndOfMinute().Sub(t) / time.Second)
 	if last <= 1 {
 		return 1
 	}
@@ -157,16 +177,48 @@ func (t *DateTime) MouthNextSecond() int64 {
 
 // 获取当前小时的剩余时间
 func (t *DateTime) HourNextSecond() int64 {
-	last := int64(t.EndOfHour().Sub(t.time) / time.Second)
+	last := int64(t.EndOfHour().Sub(t) / time.Second)
 	if last <= 1 {
 		return 1
 	}
 	return last
 }
 
-// 获取当前分钟的剩余时间
-func (t *DateTime) MinuteNextSecond() int64 {
-	last := int64(t.EndOfMinute().Sub(t.time) / time.Second)
+// 今天剩余的时间 秒
+func (t *DateTime) DayNextSecond() int64 {
+	last := int64(t.EndOfDay().Sub(t) / time.Second)
+	if last < 1 {
+		last = 1
+	}
+	return last
+}
+
+// 今天开始后的时间 秒
+func (t *DateTime) DayLastSecond() int64 {
+	return int64(t.Sub(t.StartOfDay()) / time.Second)
+}
+
+// 本周剩余的时间   周一为开始时间， 周末为结束时间
+func (t *DateTime) WeekNextSecond() int64 {
+	last := int64(t.EndOfWeek().Sub(t) / time.Second)
+	if last <= 1 {
+		return 1
+	}
+	return last
+}
+
+// 获取本月的剩余时间
+func (t *DateTime) MouthNextSecond() int64 {
+	last := int64(t.EndOfMonth().Sub(t) / time.Second)
+	if last <= 1 {
+		return 1
+	}
+	return last
+}
+
+// 获取本月的剩余时间
+func (t *DateTime) YearNextSecond() int64 {
+	last := int64(t.EndOfYear().Sub(t) / time.Second)
 	if last <= 1 {
 		return 1
 	}

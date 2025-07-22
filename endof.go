@@ -2,53 +2,58 @@ package datetime
 
 import "time"
 
-func (t *DateTime) StartOfMinute(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) StartOfMinute() *DateTime {
+
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), t.time.Minute(), MinSecond, MinNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), t.time.Minute(), MinSecond, MinNanosecond, timeZoneHandler(zone...))
 
 }
 
-func (t *DateTime) EndOfMinute(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) EndOfMinute() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), t.time.Minute(), MaxSecond, MaxNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), t.time.Minute(), MaxSecond, MaxNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) StartOfHour(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) StartOfHour() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), MinMinute, MinSecond, MinNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), MinMinute, MinSecond, MinNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) EndOfHour(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) EndOfHour() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), MaxMinute, MaxSecond, MaxNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), t.time.Day(), t.time.Hour(), MaxMinute, MaxSecond, MaxNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) StartOfDay(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) StartOfDay(zone ...string) *DateTime {
+
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), t.time.Day(), MinHour, MinMinute, MinSecond, MinNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), t.time.Day(), MinHour, MinMinute, MinSecond, MinNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) EndOfDay(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) EndOfDay() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), t.time.Day(), MaxHour, MaxMinute, MaxSecond, MaxNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), t.time.Day(), MaxHour, MaxMinute, MaxSecond, MaxNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) StartOfWeek(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
-	}
+func (t *DateTime) StartOfWeek() *DateTime {
 	dayOfWeek, weekStartsAt := t.time.Weekday(), t.weekStartsAt
 	if dayOfWeek == weekStartsAt {
 		return t.StartOfDay()
@@ -56,10 +61,8 @@ func (t *DateTime) StartOfWeek(zone ...string) time.Time {
 	return t.Copy().SubDays(int(DaysPerWeek+dayOfWeek-weekStartsAt) % DaysPerWeek).StartOfDay()
 }
 
-func (t *DateTime) EndOfWeek(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
-	}
+func (t *DateTime) EndOfWeek() *DateTime {
+
 	dayOfWeek, weekEndsAt := t.time.Weekday(), t.WeekEndsAt()
 	if dayOfWeek == weekEndsAt {
 		return t.EndOfDay()
@@ -67,30 +70,34 @@ func (t *DateTime) EndOfWeek(zone ...string) time.Time {
 	return t.Copy().AddDays(int(DaysPerWeek-dayOfWeek+weekEndsAt) % DaysPerWeek).EndOfDay()
 }
 
-func (t *DateTime) StartOfMonth(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) StartOfMonth() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month(), MinDay, MinHour, MinMinute, MinSecond, MinNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month(), MinDay, MinHour, MinMinute, MinSecond, MinNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) EndOfMonth(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) EndOfMonth() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), t.time.Month()+1, 0, MaxHour, MaxMinute, MaxSecond, MaxNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), t.time.Month()+1, 0, MaxHour, MaxMinute, MaxSecond, MaxNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) StartOfYear(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) StartOfYear() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), MinMonth, MinDay, MinHour, MinMinute, MinSecond, MinNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), MinMonth, MinDay, MinHour, MinMinute, MinSecond, MinNanosecond, timeZoneHandler(zone...))
 }
 
-func (t *DateTime) EndOfYear(zone ...string) time.Time {
-	if t.time.IsZero() {
-		t = Now(zone...)
+func (t *DateTime) EndOfYear() *DateTime {
+	return &DateTime{
+		weekStartsAt: t.weekStartsAt,
+		location:     t.location,
+		time:         time.Date(t.time.Year(), MaxMonth, MaxDay, MaxHour, MaxMinute, MaxSecond, MaxNanosecond, t.location),
 	}
-	return time.Date(t.time.Year(), MaxMonth, MaxDay, MaxHour, MaxMinute, MaxSecond, MaxNanosecond, timeZoneHandler(zone...))
 }
